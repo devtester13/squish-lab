@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-cETKPw71Y6WbBGIvmO/veTE7GNWeYwNnxor0kdoDtZE='; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-d0b7hjhPEPAgP0ow6llrHIrTiQFh0QCu1FLYQMZb9Mo='; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Squish Lab</title>
@@ -169,22 +169,24 @@ main{padding-block:22px 60px}
 .opt i.fsw{flex:none;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
 .opt[aria-pressed="true"]{border-color:var(--ink);background:var(--accent-soft)}
 .fillbar{display:flex;flex-direction:column;gap:6px;background:var(--surface-2);border-radius:var(--r-sm);padding:12px;margin-bottom:12px;border:1px solid var(--line)}
-.scoops{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px}
-.scoops i{height:18px;border-radius:5px;background:var(--bar)}
-.scoops i.full{background:var(--line)}
-.scoops i.cap{box-shadow:inset -2px 0 0 var(--ink)}
+.fillmeter{position:relative;height:24px;border-radius:9px;background:var(--bar);overflow:hidden;display:flex}
+.fillmeter i{height:100%;display:block;box-shadow:inset -1px 0 0 rgba(0,0,0,.12)}
+.fillmeter .line{position:absolute;top:0;bottom:0;left:66.667%;width:3px;background:var(--ink)}
+.fill-actions{display:flex;gap:6px;flex-wrap:wrap}
 .fillbar .row{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:800}
 .mat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .mat-filter button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px}
 .mat-filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.mats{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
-.mat-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:var(--r-sm);padding:9px 10px;background:color-mix(in srgb,var(--mc) 16%,var(--surface))}
+.mats{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.mat-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:var(--r-sm);padding:9px 10px;background:color-mix(in srgb,var(--mc) 16%,var(--surface))}
 .mat-row.on{border-color:var(--ink);background:color-mix(in srgb,var(--mc) 32%,var(--surface))}
 .blob{width:36px;height:36px;border-radius:46% 54% 50% 50%/55% 48% 52% 45%;box-shadow:inset -5px -6px 0 rgba(0,0,0,.12),inset 4px 4px 0 rgba(255,255,255,.5),0 0 0 1px rgba(0,0,0,.08)}
 .mat-row b{display:block;font-size:14px}
 .mat-row small{display:block;color:var(--muted);font-size:12px;line-height:1.3}
 .badge{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:0 5px;border-radius:4px;background:var(--surface);border:1px solid var(--line);font-weight:500;vertical-align:1px}
-.stepper{display:flex;align-items:center;gap:4px}
+.stepper{display:flex;align-items:center;gap:5px;grid-column:2}
+.stepper input{width:52px;text-align:center;font-family:var(--mono);font-size:14px;border:1.5px solid var(--line);border-radius:8px;padding:4px 2px;background:var(--surface)}
+.stepper .ten{width:auto;padding:0 10px;border-radius:999px;font-size:12px}
 .stepper button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);font-weight:800;font-size:17px;line-height:1;display:grid;place-items:center}
 .stepper button[data-d="1"]{background:var(--ink);color:var(--bg)}
 .stepper button:disabled{opacity:.35}
@@ -323,6 +325,10 @@ details.import textarea{width:100%;min-height:70px;margin:10px 0 8px;border:1.5p
           <h3>Pick a casing</h3>
           <p>This is the skin of your squishy. The shape stays, everything else is up to you.</p>
           <div class="shape-grid" id="shapeGrid"></div>
+          <div class="sub" style="--sc:#ff9f43">Size</div>
+          <div class="opts" id="sizeOpts"></div>
+          <div class="sub" style="--sc:#4cc3ff">Casing thickness</div>
+          <div class="opts" id="thickOpts"></div>
         </div>
 
         <div class="step" data-step="1" hidden>
@@ -349,7 +355,7 @@ details.import textarea{width:100%;min-height:70px;margin:10px 0 8px;border:1.5p
 
         <div class="step" data-step="3" hidden>
           <h3>Fill it up</h3>
-          <p>Each scoop changes the feel. Ten scoops fills the casing. Go past that for a tight, bouncy squishy, or stay low for a floppy one.</p>
+          <p>Each scoop changes the feel. 100 scoops fills the casing. Go up to 150 for a tight, bouncy squishy, or stay low for a floppy one. Hold + or − to pour faster.</p>
           <div class="fillbar" id="fillbar"></div>
           <div class="mat-filter" id="matFilter"></div>
           <div class="mats" id="matList"></div>
@@ -459,43 +465,61 @@ const pick=(a,R=Math.random)=>a[Math.floor(R()*a.length)];
 
 /* ---------------- materials ---------------- */
 const MATS=[
- {id:'dough',cat:'gooey',name:'Squish dough',blurb:'Thick, smooth gel. Sinks under your fingers and rises back slowly.',color:'#f6dccb',rise:2.2,bounce:.04,soft:.72,stretch:1.7,plastic:.02,gloss:.35,clear:.35,dens:1.1,wet:.35},
- {id:'slime',cat:'gooey',name:'Slime',blurb:'Wet, stretchy and a little sticky. Pulls a long way before it snaps.',color:'#66d9c2',rise:1.3,bounce:.22,soft:.92,stretch:2.6,plastic:.05,gloss:.9,clear:.65,dens:1,wet:1},
- {id:'butter',cat:'gooey',name:'Butter slime',blurb:'Soft, matte and spreadable. Smooths out like frosting.',color:'#ffe7a3',rise:2.4,bounce:.03,soft:.88,stretch:1.9,plastic:.12,gloss:.1,clear:.1,dens:1,wet:.4},
- {id:'cloud',cat:'gooey',name:'Cloud fluff',blurb:'Airy, snowy fluff that crackles softly and feels weightless.',color:'#eeeaff',rise:.9,bounce:.15,soft:.9,stretch:1.6,plastic:.03,crunch:.25,gloss:.05,clear:.25,dens:.2,particle:'snow',wet:.2},
- {id:'marsh',cat:'gooey',name:'Marshmallow fluff',blurb:'Puffy and sweet-looking, with a gentle slow bounce.',color:'#fff0f6',rise:1.1,bounce:.3,soft:.8,stretch:2,plastic:.03,gloss:.25,clear:.1,dens:.4,wet:.5},
- {id:'vaseline',cat:'gooey',name:'Petroleum jelly',blurb:'Greasy, glossy and slow. Smooshes like cold butter.',color:'#f1e2a4',rise:1.8,bounce:.1,soft:.84,stretch:1.45,plastic:.04,gloss:1,clear:.75,dens:.9,wet:.75},
- {id:'honey',cat:'gooey',name:'Honey gel',blurb:'Super thick and syrupy. The slowest rise in the lab.',color:'#f2a42a',rise:4,bounce:0,soft:.95,stretch:2.1,plastic:.06,gloss:.95,clear:.85,dens:1.4,wet:.9},
- {id:'putty',cat:'gooey',name:'Thinking putty',blurb:'Moldable putty that remembers how you shaped it.',color:'#b6a0e0',rise:3.2,bounce:0,soft:.76,stretch:1.8,plastic:.22,gloss:.5,clear:.2,dens:1.2,wet:.2},
- {id:'oobleck',cat:'gooey',name:'Oobleck',blurb:'Cornstarch goo. Goes hard when you press fast, melts when you go slow.',color:'#e3f5dc',rise:1.6,bounce:.05,soft:.85,stretch:1.3,plastic:.1,gloss:.4,clear:.3,dens:1.4,shear:1,wet:.6},
+ {id:'dough',cat:'moldable',name:'Squish dough',blurb:'Thick, smooth gel. Holds a dent, then rises back slowly.',color:'#f6dccb',rise:2.4,bounce:.03,soft:.74,stretch:1.7,plastic:.16,hold:5,gloss:.35,clear:.35,dens:1.1,wet:.35},
+ {id:'mochi',cat:'moldable',name:'Mochi dough',blurb:'Chewy rice dough that sags, stretches far and keeps its shape.',color:'#fdf3ec',rise:2.6,bounce:.04,soft:.86,stretch:2.4,plastic:.28,hold:12,gloss:.3,clear:.15,dens:1.1,wet:.45},
+ {id:'butter',cat:'moldable',name:'Butter slime',blurb:'Soft, matte and spreadable. Smooths out like frosting.',color:'#ffe7a3',rise:2.6,bounce:.02,soft:.9,stretch:1.9,plastic:.3,hold:15,gloss:.1,clear:.1,dens:1,wet:.4},
+ {id:'putty',cat:'moldable',name:'Thinking putty',blurb:'Moldable putty that remembers how you shaped it.',color:'#b6a0e0',rise:3.2,bounce:0,soft:.76,stretch:1.8,plastic:.4,hold:40,gloss:.5,clear:.2,dens:1.2,wet:.2},
+ {id:'clay',cat:'moldable',name:'Modeling clay',blurb:'Dense and very moldable. Keeps whatever shape you press into it.',color:'#e7a77a',rise:3,bounce:0,soft:.55,stretch:1.35,plastic:.65,hold:300,gloss:.15,clear:0,dens:1.8,wet:.25,grit:.05},
+ {id:'foamclay',cat:'moldable',name:'Foam clay',blurb:'Light clay packed with foam beads. Moldable with a crackle.',color:'#ffc7e0',rise:1.4,bounce:.12,soft:.6,stretch:1.25,plastic:.4,hold:40,crunch:.5,gloss:.1,clear:.1,dens:.4,particle:'floam',wet:.1,compress:.4},
+ {id:'gum',cat:'moldable',name:'Bubblegum goo',blurb:'Super stretchy and sticky. Stays wherever you pull it.',color:'#ff9ccf',rise:3,bounce:0,soft:.9,stretch:3,plastic:.42,hold:25,gloss:.55,clear:.2,dens:1,wet:.55},
+ {id:'magnet',cat:'moldable',name:'Magnetic putty',blurb:'Heavy dark putty with iron flakes and a metal sheen.',color:'#4b4f5c',rise:3.5,bounce:0,soft:.7,stretch:1.7,plastic:.5,hold:60,gloss:.7,clear:.1,dens:2,wet:.2,metal:.6},
+ {id:'sand',cat:'moldable',name:'Kinetic sand',blurb:'Heavy and grainy. Packs into shapes and crumbles slowly.',color:'#e2bf86',rise:2.6,bounce:0,soft:.45,stretch:1.1,plastic:.35,hold:10,crunch:.45,gloss:0,clear:.1,dens:1.7,particle:'grain',wet:0,grit:1},
+ {id:'slime',cat:'gooey',name:'Slime',blurb:'Wet, stretchy and a little sticky. Pulls a long way before it snaps.',color:'#66d9c2',rise:1.3,bounce:.22,soft:.92,stretch:2.6,plastic:.08,hold:6,gloss:.9,clear:.65,dens:1,wet:1},
+ {id:'clearslime',cat:'gooey',name:'Clear slime',blurb:'Glassy see-through slime full of tiny bubbles.',color:'#e9f7ff',rise:1.6,bounce:.15,soft:.9,stretch:2.5,plastic:.06,hold:6,gloss:1,clear:1,dens:1,wet:1,particle:'bubbles'},
+ {id:'cloud',cat:'gooey',name:'Cloud fluff',blurb:'Airy, snowy fluff that crackles softly and feels weightless.',color:'#eeeaff',rise:.9,bounce:.15,soft:.9,stretch:1.6,plastic:.06,hold:4,crunch:.25,gloss:.05,clear:.25,dens:.2,particle:'snow',wet:.2,compress:.6},
+ {id:'marsh',cat:'gooey',name:'Marshmallow fluff',blurb:'Puffy and sweet-looking, with a gentle slow bounce.',color:'#fff0f6',rise:1.1,bounce:.3,soft:.8,stretch:2,plastic:.05,hold:4,gloss:.25,clear:.1,dens:.4,wet:.5,compress:.45},
+ {id:'vaseline',cat:'gooey',name:'Petroleum jelly',blurb:'Greasy, glossy and slow. Smooshes like cold butter.',color:'#f1e2a4',rise:1.8,bounce:.08,soft:.84,stretch:1.45,plastic:.1,hold:5,gloss:1,clear:.75,dens:.9,wet:.75},
+ {id:'honey',cat:'gooey',name:'Honey gel',blurb:'Super thick and syrupy. The slowest rise in the lab.',color:'#f2a42a',rise:4,bounce:0,soft:.95,stretch:2.1,plastic:.1,hold:8,gloss:.95,clear:.85,dens:1.4,wet:.9},
+ {id:'pudding',cat:'gooey',name:'Pudding gel',blurb:'Soft and jiggly with a wet, creamy squelch.',color:'#c58c5c',rise:.8,bounce:.6,soft:.85,stretch:1.4,gloss:.6,clear:.15,dens:1.05,wet:.85},
+ {id:'aloe',cat:'gooey',name:'Aloe gel',blurb:'Cool, clear and slippery. Glides around inside.',color:'#b9f5c8',rise:.9,bounce:.35,soft:.85,stretch:1.6,gloss:.95,clear:.95,dens:1,wet:.95},
+ {id:'oobleck',cat:'gooey',name:'Oobleck',blurb:'Cornstarch goo. Goes hard when you press fast, melts when you go slow.',color:'#e3f5dc',rise:1.6,bounce:.05,soft:.85,stretch:1.3,plastic:.15,hold:4,gloss:.4,clear:.3,dens:1.4,shear:1,wet:.6},
  {id:'gel',cat:'bouncy',name:'Water gel',blurb:'Clear, bouncy jelly that wobbles for ages.',color:'#7fc6ff',rise:.35,bounce:.92,soft:.6,stretch:1.3,plastic:0,gloss:.9,clear:.95,dens:1,wet:.9},
  {id:'glow',cat:'bouncy',name:'Glow goo',blurb:'Neon gel that glows brighter the more you squish it.',color:'#6dff94',rise:1.2,bounce:.3,soft:.8,stretch:2,plastic:.03,gloss:.8,clear:.8,dens:1,glow:1,wet:.8},
- {id:'sponge',cat:'bouncy',name:'Sponge foam',blurb:'Springy foam that pops right back the moment you let go.',color:'#ffe58a',rise:.22,bounce:.45,soft:.6,stretch:1.15,plastic:0,gloss:0,clear:0,dens:.25,wet:0},
+ {id:'sponge',cat:'bouncy',name:'Sponge foam',blurb:'Springy foam that pops right back the moment you let go.',color:'#ffe58a',rise:.22,bounce:.45,soft:.6,stretch:1.15,plastic:0,gloss:0,clear:0,dens:.25,wet:0,compress:.8},
+ {id:'memfoam',cat:'bouncy',name:'Memory foam',blurb:'Sinks deep, then rises back in slow motion.',color:'#f1f0e8',rise:4.5,bounce:0,soft:.82,stretch:1.1,plastic:.05,hold:3,gloss:0,clear:0,dens:.3,compress:.75,wet:0},
  {id:'orbs',cat:'bouncy',name:'Water beads',blurb:'Squishy gel marbles that roll and pop around inside.',color:'#8fd3ff',rise:.5,bounce:.55,soft:.55,stretch:1.2,plastic:0,crunch:.15,pop:1,gloss:.8,clear:.85,dens:1,particle:'orbs',wet:.8},
- {id:'chalk',cat:'crunchy',name:'Chalk powder',blurb:'Packed powder. Firm, dry and crumbly with a soft crunch.',color:'#efeee8',rise:.9,bounce:.08,soft:.38,stretch:1.12,plastic:.08,crunch:.45,gloss:0,clear:0,dens:1.3,particle:'dust',wet:0},
- {id:'sand',cat:'crunchy',name:'Kinetic sand',blurb:'Heavy and grainy. Holds a dent for a moment, then settles.',color:'#e2bf86',rise:2.6,bounce:0,soft:.45,stretch:1.1,plastic:.14,crunch:.45,gloss:0,clear:.1,dens:1.7,particle:'grain',wet:0},
- {id:'beads',cat:'crunchy',name:'Crunchy beads',blurb:'Tiny plastic beads that crackle every time you squeeze.',color:'#ffffff',rise:.7,bounce:.2,soft:.5,stretch:1.25,plastic:0,crunch:1,gloss:.2,clear:.4,dens:.7,particle:'beads',addin:true,wet:0},
+ {id:'cubes',cat:'bouncy',name:'Jelly cubes',blurb:'Soft cubes of jelly that squish and squeak.',color:'#ff8aa8',rise:.5,bounce:.6,soft:.55,stretch:1.2,crunch:.15,pop:.4,gloss:.8,clear:.7,dens:1,particle:'cubes',addin:true,wet:.6},
+ {id:'chalk',cat:'crunchy',name:'Chalk powder',blurb:'Packed powder. Firm, dry and crumbly with a soft crunch.',color:'#efeee8',rise:.9,bounce:.08,soft:.38,stretch:1.12,plastic:.18,hold:6,crunch:.45,gloss:0,clear:0,dens:1.3,particle:'dust',wet:0,grit:.6},
+ {id:'beads',cat:'crunchy',name:'Crunchy beads',blurb:'Tiny plastic beads that crackle every time you squeeze.',color:'#ffffff',rise:.7,bounce:.2,soft:.5,stretch:1.25,plastic:0,crunch:1,gloss:.2,clear:.4,dens:.7,particle:'beads',addin:true,wet:0,grit:.3},
  {id:'pearls',cat:'crunchy',name:'Fishbowl beads',blurb:'Big clear beads with a loud, satisfying crunch.',color:'#e8f6ff',rise:.6,bounce:.25,soft:.45,stretch:1.15,crunch:1,gloss:.6,clear:.7,dens:.6,particle:'pearls',addin:true,wet:0},
  {id:'floam',cat:'crunchy',name:'Foam balls',blurb:'Colorful foam pellets. Light, squeaky and crunchy.',color:'#ffd1e6',rise:.6,bounce:.3,soft:.5,stretch:1.2,plastic:0,crunch:.75,gloss:.1,clear:.3,dens:.3,particle:'floam',addin:true,wet:.1},
- {id:'sugar',cat:'crunchy',name:'Sugar crystals',blurb:'Sparkly crystals with a fine, sandy crunch.',color:'#fffaf0',rise:.8,bounce:.1,soft:.5,stretch:1.1,crunch:.8,gloss:.6,clear:.5,dens:.9,particle:'crystals',addin:true,wet:0},
+ {id:'sugar',cat:'crunchy',name:'Sugar crystals',blurb:'Sparkly crystals with a fine, sandy crunch.',color:'#fffaf0',rise:.8,bounce:.1,soft:.5,stretch:1.1,crunch:.8,gloss:.6,clear:.5,dens:.9,particle:'crystals',addin:true,wet:0,grit:.8},
+ {id:'rice',cat:'crunchy',name:'Rice grains',blurb:'Shifting grains with a dry, rustling crunch.',color:'#f5efe0',rise:.9,bounce:.05,soft:.4,stretch:1.08,plastic:.1,hold:3,crunch:.6,gloss:.1,clear:.2,dens:.9,particle:'rice',addin:true,grit:1},
+ {id:'salt',cat:'crunchy',name:'Sea salt',blurb:'Coarse salt that grinds with a crisp crunch.',color:'#fbfbfb',rise:.8,bounce:.05,soft:.4,stretch:1.05,crunch:.7,gloss:.4,clear:.4,dens:1.2,particle:'crystals',addin:true,grit:.9},
+ {id:'snow',cat:'crunchy',name:'Instant snow',blurb:'Fluffy fake snow that packs down with a soft squeak.',color:'#ffffff',rise:1.2,bounce:.1,soft:.7,stretch:1.2,plastic:.22,hold:6,crunch:.3,gloss:.1,clear:.2,dens:.3,particle:'snow',wet:.3,grit:.4,compress:.5},
+ {id:'slush',cat:'crunchy',name:'Slushy ice',blurb:'Icy crystals in cold gel. Wet and crunchy at once.',color:'#a8e6ff',rise:.7,bounce:.3,soft:.6,stretch:1.2,crunch:.7,gloss:.85,clear:.85,dens:1,particle:'ice',wet:.8,grit:.4},
+ {id:'metallic',cat:'sparkly',name:'Metallic slime',blurb:'Liquid-metal shimmer that flows as you squish.',color:'#c7ccd8',rise:1.4,bounce:.15,soft:.88,stretch:2.2,plastic:.06,hold:5,gloss:1,clear:.3,dens:1.1,wet:.8,metal:1},
  {id:'bubbles',cat:'sparkly',name:'Bubble beads',blurb:'Little air bubbles that pop and fizz when you press.',color:'#d6f4ff',rise:.5,bounce:.4,soft:.6,stretch:1.2,pop:1,gloss:.7,clear:.8,dens:.2,particle:'bubbles',addin:true,wet:.3},
  {id:'glitter',cat:'sparkly',name:'Glitter',blurb:'A sprinkle of sparkle. Shows best in a clear casing.',color:'#ffe680',rise:1,bounce:.2,soft:.5,stretch:1.3,plastic:0,gloss:.5,clear:.5,dens:.5,particle:'glitter',addin:true,wet:0},
+ {id:'pearlpowder',cat:'sparkly',name:'Pearl powder',blurb:'Fine shimmer powder that swirls with every move.',color:'#fff2fb',rise:1,bounce:.2,soft:.5,stretch:1.3,gloss:.7,clear:.5,dens:.5,addin:true,shimmer:1},
+ {id:'sequins',cat:'sparkly',name:'Sequins',blurb:'Shiny discs that flash and slide around.',color:'#ffd6f5',rise:1,bounce:.2,soft:.5,stretch:1.3,gloss:.6,clear:.5,dens:.4,particle:'sequins',addin:true},
  {id:'confetti',cat:'sparkly',name:'Confetti',blurb:'Rainbow flecks that swirl around when you twist.',color:'#ff9ecf',rise:1,bounce:.2,soft:.5,stretch:1.3,gloss:.4,clear:.5,dens:.4,particle:'confetti',addin:true,wet:0},
+ {id:'starbits',cat:'sparkly',name:'Star sprinkles',blurb:'Tiny stars that tumble around when you twist.',color:'#fff1a8',rise:1,bounce:.2,soft:.5,stretch:1.3,gloss:.5,clear:.5,dens:.4,particle:'starbits',addin:true},
 ];
 const MAT=Object.fromEntries(MATS.map(m=>[m.id,m]));
-const MAT_CATS={all:'All',gooey:'Gooey',bouncy:'Bouncy',crunchy:'Crunchy',sparkly:'Sparkly'};
-const CAP=10, MAXSCOOPS=14;
+const MAT_CATS={all:'All',moldable:'Moldable',gooey:'Gooey',bouncy:'Bouncy',crunchy:'Crunchy',sparkly:'Sparkly'};
+const CAP=100, MAXSCOOPS=150;
 
 function blend(fill){
   const list=Object.entries(fill||{}).filter(([id,c])=>c>0&&MAT[id]).sort((a,b)=>b[1]-a[1]);
   let total=0;list.forEach(([,c])=>total+=c);
-  const keys=['rise','bounce','soft','stretch','plastic','gloss','clear','wet','glow','shear'];
-  if(!total) return finalize({rise:.35,bounce:.35,soft:.95,stretch:1.15,plastic:0,gloss:0,clear:0,wet:0,glow:0,shear:0,color:'#ffffff',crunch:0,pop:0,grams:18,total:0,list});
+  const keys=['rise','bounce','soft','stretch','plastic','gloss','clear','wet','glow','shear','hold','compress','grit','metal','shimmer'];
+  if(!total) return finalize({rise:.35,bounce:.35,soft:.95,stretch:1.15,plastic:0,gloss:0,clear:0,wet:0,glow:0,shear:0,hold:2,compress:.6,grit:0,metal:0,shimmer:0,color:'#ffffff',crunch:0,pop:0,grams:18,total:0,list});
   const acc={};keys.forEach(k=>acc[k]=0);
   let w=0,cw=0,col=[0,0,0],crunch=0,pop=0,grams=0,glowC=null;
-  for(const[id,c]of list){const m=MAT[id];const wt=c*(m.addin?.35:1);w+=wt;keys.forEach(k=>acc[k]+=(m[k]||0)*wt);
+  for(const[id,c]of list){const m=MAT[id];const wt=c*(m.addin?.35:1);w+=wt;keys.forEach(k=>acc[k]+=(m[k]!=null?m[k]:(k==='hold'?2:0))*wt);
     const ct=c*(m.addin?.18:1);const rgb=hexToRgb(m.color);col=col.map((v,i)=>v+rgb[i]*ct);cw+=ct;
-    crunch+=(m.crunch||0)*c;pop+=(m.pop||0)*c;grams+=c*m.dens*14;if(m.glow&&!glowC)glowC=m.color;}
+    crunch+=(m.crunch||0)*c;pop+=(m.pop||0)*c;grams+=c*m.dens*1.4;if(m.glow&&!glowC)glowC=m.color;}
   keys.forEach(k=>acc[k]/=w);
   if(acc.glow>0)acc.glow=Math.min(1,acc.glow*1.6);
   return finalize({...acc,glowColor:glowC,color:rgbToHex(col.map(v=>v/cw)),crunch:Math.min(1,crunch/total*1.5),pop:Math.min(1,pop/total*1.6),grams:Math.round(grams+18),total,list});
@@ -509,6 +533,7 @@ function finalize(p){
   else p.scale=.96+.04*((fr-.7)/.3);
   Object.assign(p,{rise,bounce,soft,stretch});
   p.D=.33*(1-bounce)+.012*bounce;
+  p.incomp=(.45*(1-(p.compress||0))+.04)*(fr<.6?.4+fr:fr>1?1.3:1);p.rc=1/(Math.max(.5,p.hold||2)*180);
   const tau=Math.max(8,rise/2.5*180);
   p.K=Math.min(.05,p.D/tau);
   if(bounce>.3)p.K=Math.max(p.K,.0016+bounce*.0012);
@@ -518,8 +543,16 @@ function finalize(p){
   return p;
 }
 
+const SIZES={s:['Small','Fits in one palm'],m:['Medium','The classic size'],l:['Large','Big two-hand squish']};
+const THICKS={thin:['Thin skin','Stretchier and softer'],std:['Standard','Balanced feel'],thick:['Thick skin','Firmer and squeakier']};
+function props(r){const P=blend(r.fill);const th=r.thick||'std',sz=r.size||'m';
+  if(th==='thin'){P.K*=.72;P.stretch=1+(P.stretch-1)*1.3;P.squeak=.6;P.soft=Math.min(1,P.soft*1.08);}
+  else if(th==='thick'){P.K*=1.5;P.stretch=1+(P.stretch-1)*.75;P.soft*=.85;P.squeak=1.3;P.D=Math.min(.6,P.D*1.15);}
+  else P.squeak=.9;
+  P.edgeMax=1+(P.stretch-1)*1.6+.2;P.scale*=sz==='s'?.8:sz==='l'?1.16:1;P.dens=(P.grams-18)/Math.max(1,P.total)/1.4;return P;}
+
 /* ---------------- shapes ---------------- */
-const N=72, SUB=3;
+const N=96, SUB=3;
 function polar(fn,n=480){const a=[];for(let i=0;i<n;i++){const t=i/n*TAU,r=fn(t);a.push([Math.cos(t)*r,Math.sin(t)*r]);}return a;}
 function param(fn,n=480){const a=[];for(let i=0;i<n;i++)a.push(fn(i/n*TAU));return a;}
 function chaikin(p,it){for(let k=0;k<it;k++){const q=[];for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];q.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75]);}p=q;}return p;}
@@ -655,9 +688,9 @@ function accDecor(kind,shp){
   return o;
 }
 function bindPt(unit,x,y){const n=unit.length;for(let i=0;i<n;i++){const a=unit[i],b=unit[(i+1)%n];const det=a[0]*b[1]-a[1]*b[0];if(Math.abs(det)<1e-9)continue;const u=(x*b[1]-y*b[0])/det,v=(a[0]*y-a[1]*x)/det;if(u>=-1e-7&&v>=-1e-7)return{i,j:(i+1)%n,u,v,r:Math.hypot(x,y)};}return{i:0,j:1,u:0,v:0,r:0};}
-const PCOUNT={beads:34,floam:26,orbs:9,grain:150,dust:70,glitter:44,snow:60,pearls:12,bubbles:18,confetti:40,crystals:30};
-const PSIZE={beads:.045,floam:.055,orbs:.14,grain:.013,dust:.022,glitter:.03,snow:.03,pearls:.085,bubbles:.05,confetti:.04,crystals:.04};
-const PCOLORS={beads:['#ffffff','#fff3c4','#ffd6e7','#d9f2ff'],floam:['#ff7aa8','#ffd23f','#5ad1a8','#7aa8ff','#ffffff','#c49bff'],grain:['#d9b273','#c99d5c','#ecd09c'],dust:['#ffffff','#f4f2ec'],glitter:['#fff6b0','#ffd1f0','#c7f0ff','#ffffff'],snow:['#ffffff','#f4f0ff'],pearls:['#ffffff','#e6f6ff','#fff0f8'],bubbles:['#ffffff'],confetti:RAINBOW,crystals:['#ffffff','#fff8e0','#e8f6ff']};
+const PCOUNT={beads:34,floam:26,orbs:9,grain:150,dust:70,glitter:44,snow:60,pearls:12,bubbles:18,confetti:40,crystals:30,sequins:20,cubes:10,rice:60,ice:16,starbits:24};
+const PSIZE={beads:.045,floam:.055,orbs:.14,grain:.013,dust:.022,glitter:.03,snow:.03,pearls:.085,bubbles:.05,confetti:.04,crystals:.04,sequins:.045,cubes:.09,rice:.03,ice:.07,starbits:.045};
+const PCOLORS={beads:['#ffffff','#fff3c4','#ffd6e7','#d9f2ff'],floam:['#ff7aa8','#ffd23f','#5ad1a8','#7aa8ff','#ffffff','#c49bff'],grain:['#d9b273','#c99d5c','#ecd09c'],dust:['#ffffff','#f4f2ec'],glitter:['#fff6b0','#ffd1f0','#c7f0ff','#ffffff'],snow:['#ffffff','#f4f0ff'],pearls:['#ffffff','#e6f6ff','#fff0f8'],bubbles:['#ffffff'],confetti:RAINBOW,crystals:['#ffffff','#fff8e0','#e8f6ff'],sequins:['#ffd6f5','#c7f0ff','#fff1a8','#e0ccff'],cubes:['#ff8aa8','#7fd3ff','#ffd23f','#9be89b'],rice:['#f8f3e6','#efe6d0'],ice:['#e8f8ff','#ffffff'],starbits:RAINBOW};
 
 /* ---------------- sound ---------------- */
 const Sound={ctx:null,on:true,buf:null,last:{},
@@ -665,30 +698,51 @@ const Sound={ctx:null,on:true,buf:null,last:{},
   ok(name,gap){if(!this.on||!this.ctx)return false;const t=performance.now();if(this.last[name]&&t-this.last[name]<gap)return false;this.last[name]=t;if(this.ctx.state==='suspended')this.ctx.resume();return true;},
   noise({dur=.2,type='lowpass',f0=800,f1=300,q=1,gain=.4,attack=.01}){const c=this.ctx,t=c.currentTime;const s=c.createBufferSource();s.buffer=this.buf;s.playbackRate.value=.8+Math.random()*.4;const f=c.createBiquadFilter();f.type=type;f.Q.value=q;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+dur);const g=c.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(f);f.connect(g);g.connect(this.master);s.start(t,Math.random()*.5);s.stop(t+dur+.05);},
   tone({f0,f1,dur,gain=.2,type='sine'}){const c=this.ctx,t=c.currentTime;const o=c.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(30,f1),t+dur);const g=c.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(this.master);o.start(t);o.stop(t+dur+.05);},
-  squish(wet,soft){if(!this.ok('squish',90))return;this.noise({dur:.2+wet*.25,type:'bandpass',f0:420+wet*900,f1:140+soft*120,q:1.2+wet*3.5,gain:.55});if(wet>.6)this.tone({f0:260,f1:110,dur:.16,gain:.06});},
-  crunch(x){if(!this.ok('crunch',35))return;const n=1+Math.floor(Math.random()*3);for(let k=0;k<n;k++)setTimeout(()=>this.ctx&&this.noise({dur:.02+Math.random()*.03,type:'highpass',f0:1800+Math.random()*3200,f1:1100,q:.7,gain:.18+.3*x,attack:.002}),k*16);},
-  pop(){if(!this.ok('pop',70))return;this.tone({f0:650+Math.random()*350,f1:170,dur:.09,gain:.22});},
+  squish(wet,soft){if(!this.ok('squish',80))return;const dry=1-wet;this.noise({dur:.16+wet*.22,type:'bandpass',f0:300+wet*700,f1:110+soft*90,q:.8+wet*5,gain:.35+wet*.25});if(dry>.5)this.noise({dur:.14,type:'lowpass',f0:520,f1:160,q:.7,gain:.35*dry,attack:.004});const nb=Math.round(wet*4);for(let k=0;k<nb;k++)setTimeout(()=>this.bubble(.5+wet*.5),20+Math.random()*160);},
+  bubble(v=1){if(!this.ctx||!this.on)return;const f=260+Math.random()*520;this.tone({f0:f,f1:f*2.1,dur:.025+Math.random()*.03,gain:.05*v});},
+  thud(v){if(!this.ok('thud',110))return;const g=Math.min(.5,.08+v*.04);this.tone({f0:120,f1:45,dur:.2,gain:g});this.noise({dur:.12,type:'lowpass',f0:420,f1:90,gain:g*.9,attack:.002});},
+  crunch(x,grit=0){if(!this.ok('crunch',30))return;const n=2+Math.floor(Math.random()*5*x);let t=0;for(let k=0;k<n;k++){t+=4+Math.random()*16;setTimeout(()=>{if(!this.ctx)return;const f=1400+Math.random()*4200*(1-grit*.4);this.noise({dur:.006+Math.random()*.014,type:'bandpass',f0:f,f1:f*.8,q:1.4,gain:(.12+Math.random()*.28)*x,attack:.001});},t);}},
+  pop(){if(!this.ok('pop',60))return;const f=900+Math.random()*700;this.tone({f0:f,f1:f*.35,dur:.05,gain:.16});this.noise({dur:.012,type:'highpass',f0:3000,f1:2000,gain:.15,attack:.001});},
   fizz(){if(!this.ok('fizz',120))return;for(let k=0;k<4;k++)setTimeout(()=>this.ctx&&this.tone({f0:900+Math.random()*900,f1:400,dur:.05,gain:.07}),k*35);},
   snap(){if(!this.ok('snap',150))return;this.noise({dur:.08,type:'highpass',f0:2500,f1:900,gain:.5,attack:.002});this.tone({f0:320,f1:70,dur:.2,gain:.2});},
   stretch(a){if(!this.ok('stretch',110))return;this.tone({f0:150+a*260,f1:170+a*300,dur:.13,gain:.045,type:'triangle'});},
-  boing(v){if(!this.ok('boing',160))return;this.tone({f0:130,f1:280+v*25,dur:.22,gain:Math.min(.28,.05+v*.025)});this.noise({dur:.08,type:'lowpass',f0:600,f1:150,gain:Math.min(.4,.1+v*.03)});},
-  splat(){if(!this.ok('splat',120))return;this.noise({dur:.28,type:'lowpass',f0:1400,f1:120,q:2,gain:.7,attack:.003});this.tone({f0:180,f1:60,dur:.25,gain:.18});},
+  boing(v){this.thud(v);},
+  splat(wet=.5){if(!this.ok('splat',120))return;this.thud(5);this.noise({dur:.22+wet*.15,type:'bandpass',f0:900+wet*600,f1:150,q:1+wet*3,gain:.45,attack:.003});const nb=Math.round(wet*5);for(let k=0;k<nb;k++)setTimeout(()=>this.bubble(.7),30+Math.random()*200);},
   plop(){if(!this.ok('plop',80))return;this.tone({f0:420,f1:120,dur:.14,gain:.2});this.noise({dur:.1,type:'lowpass',f0:900,f1:200,gain:.18});},
   twist(){if(!this.ok('twist',75))return;this.tone({f0:480+Math.random()*220,f1:400,dur:.06,gain:.035,type:'triangle'});},
   chime(){if(!this.ok('chime',300))return;[660,880,1320].forEach((f,i)=>setTimeout(()=>this.ctx&&this.tone({f0:f,f1:f*1.01,dur:.25,gain:.08}),i*70));},
+};
+
+const Engine={n:null,
+  ensure(){if(this.n||!Sound.ctx)return;try{const c=Sound.ctx;const src=c.createBufferSource();src.buffer=Sound.buf;src.loop=true;
+    const mk=(type,f,q)=>{const b=c.createBiquadFilter();b.type=type;b.frequency.value=f;b.Q.value=q;return b;};
+    const g=()=>{const x=c.createGain();x.gain.value=0;x.connect(Sound.master);return x;};
+    const bp=mk('bandpass',400,2),gS=g();src.connect(bp);bp.connect(gS);
+    const hp=mk('bandpass',3500,.7),gH=g();src.connect(hp);hp.connect(gH);
+    const lp=mk('lowpass',200,.7),gL=g();src.connect(lp);lp.connect(gL);
+    const osc=c.createOscillator();osc.type='sawtooth';osc.frequency.value=160;const cb=mk('bandpass',1100,5),gC=g();osc.connect(cb);cb.connect(gC);
+    src.start();osc.start();this.n={bp,gS,hp,gH,lp,gL,osc,cb,gC};}catch(e){this.n=null;}},
+  set(node,v,tc=.04){node.setTargetAtTime(v,Sound.ctx.currentTime,tc);},
+  update(m){if(!Sound.ctx)return;if(!Sound.on){this.silence();return;}this.ensure();const n=this.n;if(!n)return;
+    const d=m.active?clamp(m.deform,0,1):0;
+    this.set(n.gS.gain,d*(.05+.32*m.wet));this.set(n.bp.frequency,180+m.wet*420+d*700*(.3+m.wet));this.set(n.bp.Q,.7+m.wet*5);
+    this.set(n.gH.gain,d*m.grit*.22);this.set(n.hp.frequency,2200+d*2500);
+    this.set(n.gL.gain,d*Math.min(1,m.dens/1.5)*.35);
+    const cr=m.active?clamp(m.stretch*.8+m.twist,0,1):0;this.set(n.gC.gain,cr*.03*m.squeak);this.set(n.osc.frequency,110+m.stretch*180+m.twist*90+Math.random()*25,.02);this.set(n.cb.frequency,800+m.stretch*900);},
+  silence(){if(!this.n||!Sound.ctx)return;for(const k of['gS','gH','gL','gC'])this.set(this.n[k].gain,0,.05);}
 };
 
 /* ---------------- soft-body sim ---------------- */
 class Sim{
   constructor(cv,opt={}){
     this.cv=cv;this.ctx=cv.getContext('2d');this.opt=opt;this.tool=opt.tool||'squish';this.ptrs=new Map();
-    ['px','py','vx','vy','mx','my','ux','uy','L'].forEach(k=>this[k]=new Float32Array(N));
+    ['px','py','vx','vy','mx','my','ux','uy','L','nx','ny'].forEach(k=>this[k]=new Float32Array(N));
     this.W=this.H=0;this.S=0;this.hx=this.hy=0;this.restAngle=0;this.strain=0;this.energy=0;this.drops=[];this.dimples=[];this.fx=[];this.crunchAcc=0;this.t=0;this.lastUser=-1e9;this.shearV=0;this.mood='base';this.moodT=0;this.smashT=0;this.onAction=opt.onAction||(()=>{});
     if(opt.interactive)this.attach();
   }
   setRecipe(r,keep){
     const shapeChanged=!this.shape||this.shape.key!==r.shape;
-    this.recipe=r;this.shape=buildShape(r.shape);this.props=blend(r.fill);this.finish=FINISHES[r.finish]||FINISHES.smooth;
+    this.recipe=r;this.shape=buildShape(r.shape);this.props=props(r);this.finish=FINISHES[r.finish]||FINISHES.smooth;
     const P=this.props,F=this.finish;const see=F.clear;const show=P.total?see*(.35+.65*P.clear):0;
     let body=P.total?mix(r.color,P.color,show*.85):r.color;if(F.dark)body=mix(body,'#140b2e',.72);
     this.col={body,see,gloss:Math.max(F.gloss,P.gloss*see),alpha:see>.6?.88:1,rim:this.shape.rim||shade(body,-.32),glow:P.glow>0?(P.glowColor||'#6dff94'):F.gfx==='neon'?shade(r.color,.15):null,glowBase:F.gfx==='neon'?.6:P.glow*.4};
@@ -710,7 +764,7 @@ class Sim{
     const r=this.recipe,R=rng(hash((r.id||'x')+'p')),raw=this.shape.raw,unit=this.shape.unit,out=[];
     const add=(kind,count,color,vis)=>{for(let k=0;k<count;k++){let x,y,t=0;do{x=(R()*2-1)*1.4;y=(R()*2-1)*1.4;t++;}while(t<60&&!(inPoly(raw,x/.82,y/.82)));
       const pal=color?[color,shade(color,-.15),shade(color,.25)]:PCOLORS[kind];out.push({x,y,kind,size:PSIZE[kind]*(.7+R()*.6),c:pal[Math.floor(R()*pal.length)],b:bindPt(unit,x,y),ox:0,oy:0,tw:R()*TAU,rot:R()*TAU,vis});}};
-    for(const[id,c]of this.props.list){const m=MAT[id];if(!m.particle)continue;add(m.particle,Math.round(PCOUNT[m.particle]*Math.min(1.6,.35+c/4)),m.particle==='orbs'?m.color:null,false);}
+    for(const[id,c]of this.props.list){const m=MAT[id];if(!m.particle)continue;add(m.particle,Math.round(PCOUNT[m.particle]*Math.min(1.8,.25+c/Math.max(1,this.props.total)*2.2)*(.5+.5*Math.min(1,this.props.fillRatio))),m.particle==='orbs'?m.color:null,false);}
     if(this.finish.sparkle)add('glitter',this.finish.gfx==='galaxy'?50:36,null,true);
     out.sort((a,b)=>((b.kind==='orbs'||b.kind==='pearls')-(a.kind==='orbs'||a.kind==='pearls')));
     this.particles=out;
@@ -764,20 +818,21 @@ class Sim{
     else if(tool==='smash'){if(!near)return;const k=(3+5*P.soft)*(S/150)*(1-this.shearV*.7);
       for(let i=0;i<N;i++){const dx=this.px[i]-c[0],dy=this.py[i]-c[1];this.vx[i]+=dx/S*k;this.vy[i]+=dy/S*k;}
       const rel={...rec,tool:'squish',amt:.9,released:true};this.ptrs.set('smash'+this.t,rel);this.smashT=40;
-      snd(()=>{Sound.splat();if(P.crunch>.2)Sound.crunch(P.crunch);if(P.pop>.3)Sound.fizz();});this.onAction('squish');this.burst(x,y,14,['star','heart','confetti','spark'],1.3);return;}
+      snd(()=>{Sound.splat(P.wet);if(P.crunch>.2)Sound.crunch(P.crunch,P.grit);if(P.pop>.3)Sound.fizz();});this.onAction('squish');this.burst(x,y,14,['star','heart','confetti','spark'],1.3);return;}
     else if(tool==='poke'){rec.depth=0;const amp=(1.2+P.bounce*3)*(S/150);
       for(let i=0;i<N;i++){const dx=this.px[i]-x,dy=this.py[i]-y,d=Math.hypot(dx,dy)||1;const f=-amp*Math.exp(-d/(S*.7));this.vx[i]+=dx/d*f;this.vy[i]+=dy/d*f;}
-      if(near){snd(()=>P.pop>.2&&Math.random()<P.pop?(Sound.pop(),Sound.fizz()):Sound.squish(P.wet*.6,.2));this.onAction('poke');if(P.crunch>.2)snd(()=>Sound.crunch(P.crunch));if(P.pop>.2)this.burst(x,y,4,['bubble'],.6);}}
+      if(near){snd(()=>P.pop>.2&&Math.random()<P.pop?(Sound.pop(),Sound.fizz()):Sound.squish(P.wet*.6,.2));this.onAction('poke');if(P.crunch>.2)snd(()=>Sound.crunch(P.crunch,P.grit));if(P.pop>.2)this.burst(x,y,4,['bubble'],.6);}}
     else if(tool==='pull'||tool==='pinch'){const pinch=tool==='pinch';const[j,d]=this.nearest(x,y);if(d>S*.55&&!rec.inside)return;rec.j=j;rec.sx=this.px[j];rec.sy=this.py[j];rec.grab=[];rec.pins=[];
-      const rng_=pinch?4:10,sig=pinch?1.4:3.4;
+      const rng_=pinch?5:13,sig=pinch?1.8:4.5;
       for(let k=-rng_;k<=rng_;k++){const i=(j+k+N)%N;rec.grab.push({i,w:Math.exp(-(k*k)/(2*sig*sig)),ox:(this.px[i]-this.px[j])*(pinch?.4:1),oy:(this.py[i]-this.py[j])*(pinch?.4:1)});}
-      const o=(j+N/2)%N;for(let k=-9;k<=9;k++){const i=(o+k+N)%N;rec.pins.push({i,x:this.px[i],y:this.py[i],w:Math.exp(-(k*k)/(2*4.5*4.5))*(pinch?.25:.35)});}
+      const o=(j+N/2)%N;for(let k=-12;k<=12;k++){const i=(o+k+N)%N;rec.pins.push({i,x:this.px[i],y:this.py[i],w:Math.exp(-(k*k)/(2*6*6))*(pinch?.25:.35)});}
       rec.max=pinch?S*(P.stretch-1)*.8+S*.25:S*(P.stretch-1)*1.25+S*.3;rec.ext=0;rec.lastExt=0;this.onAction('pull');snd(()=>Sound.stretch(.1));}
     else if(tool==='stretch'){if(!near)return;let ux=x-c[0],uy=y-c[1];const d=Math.hypot(ux,uy);if(d<S*.15){ux=1;uy=0;}else{ux/=d;uy/=d;}rec.grab=[];
       for(let i=0;i<N;i++){const pr=((this.px[i]-c[0])*ux+(this.py[i]-c[1])*uy)/S;const w=Math.min(1,Math.max(0,(Math.abs(pr)-.1)/.55));if(w>0)rec.grab.push({i,w,s:pr>0?1:-1,ox:this.px[i],oy:this.py[i]});}
       rec.sx=x;rec.sy=y;rec.max=S*(P.stretch-1)*1.1+S*.35;rec.ext=0;rec.lastExt=0;this.onAction('pull');snd(()=>Sound.stretch(.1));}
     else if(tool==='twist'||tool==='roll'){rec.a=Math.atan2(y-c[1],x-c[0]);rec.acc=0;if(tool==='roll'&&!near)return;}
     else if(tool==='jiggle'){if(!near)return;rec.acc=0;}
+    else if(tool==='mold'){if(Math.hypot(x-c[0],y-c[1])>S*1.8)return;rec.acc=0;snd(()=>Sound.squish(P.wet*.5,P.soft));}
     else if(tool==='toss'){if(!near)return;rec.off=[];for(let i=0;i<N;i++)rec.off.push([this.px[i]-x,this.py[i]-y]);}
     this.ptrs.set(id,rec);
   }
@@ -791,6 +846,10 @@ class Sim{
     if(r.tool==='twist'){const d=Math.hypot(x-c[0],y-c[1]);if(d<this.S*.12)return;const a=Math.atan2(y-c[1],x-c[0]);const da=wrap(a-r.a)*.9;r.a=a;rotAll(da,false);
       r.acc+=Math.abs(da);if(Math.abs(da)>.02&&!r.silent)Sound.twist();if(r.acc>Math.PI){r.acc=0;this.onAction('twist');}}
     else if(r.tool==='roll'){for(let i=0;i<N;i++){this.px[i]+=dxm*.85;this.py[i]+=dym*.85;}const da=(dxm+dym*.3)/this.S*.9;rotAll(da,true);r.acc+=Math.abs(da);if(r.acc>Math.PI){r.acc=0;this.onAction('twist');if(!r.silent)Sound.squish(this.props.wet*.5,.3);}}
+    else if(r.tool==='mold'){const P=this.props;const R=this.S*.38;const ca=Math.cos(this.restAngle),sa=Math.sin(this.restAngle);const mk=clamp(P.plastic*2.2,.06,1);
+      for(let i=0;i<N;i++){const d=Math.hypot(this.px[i]-x,this.py[i]-y);if(d>=R)continue;const w=Math.pow(1-d/R,2);this.px[i]+=dxm*w*.85;this.py[i]+=dym*w*.85;
+        const lx=ca*(this.px[i]-c[0])+sa*(this.py[i]-c[1]),ly=-sa*(this.px[i]-c[0])+ca*(this.py[i]-c[1]);this.mx[i]+=(lx-this.mx[i])*w*mk;this.my[i]+=(ly-this.my[i])*w*mk;}
+      r.acc+=Math.hypot(dxm,dym);if(r.acc>this.S){r.acc=0;this.onAction('poke');if(!r.silent)Sound.squish(P.wet*.5,P.soft*.6);}}
     else if(r.tool==='jiggle'){const P=this.props;for(let i=0;i<N;i++){const d=Math.hypot(this.px[i]-x,this.py[i]-y);const w=Math.exp(-Math.pow(d/(this.S*1.2),2));this.vx[i]+=r.vx*.05*w*(.5+P.bounce);this.vy[i]+=r.vy*.05*w*(.5+P.bounce);}
       r.acc+=Math.hypot(dxm,dym);if(r.acc>this.S*1.5){r.acc=0;this.onAction('poke');if(!r.silent)Sound.squish(P.wet,P.soft*.5);}}
   }
@@ -841,6 +900,10 @@ class Sim{
     const em=P.edgeMax;
     for(let i=0;i<N;i++){const j=(i+1)%N;const dx=px[j]-px[i],dy=py[j]-py[i];const dd=Math.hypot(dx,dy)||1e-6;const rest=this.L[i];let c=(dd-rest)/dd*.04;
       if(dd>rest*em)c=(dd-rest*em)/dd*.5;else if(dd<rest*.3)c=(dd-rest*.3)/dd*.5;px[i]+=dx*c;py[i]+=dy*c;px[j]-=dx*c;py[j]-=dy*c;}
+    {let A2=0,per=0;for(let i=0;i<N;i++){const j=(i+1)%N;A2+=px[i]*py[j]-px[j]*py[i];per+=Math.hypot(px[j]-px[i],py[j]-py[i]);}A2/=2;const s2=A2>=0?1:-1;
+     const A0=this.restArea*(1+squishSum*.25);const dd=(A0-Math.abs(A2))/Math.max(1,per)*P.incomp;
+     if(Math.abs(dd)>1e-4){const nx=this.nx,ny=this.ny;for(let i=0;i<N;i++){const ip=(i-1+N)%N,inx=(i+1)%N;const ax=py[inx]-py[ip],ay=-(px[inx]-px[ip]);const l=Math.hypot(ax,ay)||1;nx[i]=ax/l*s2;ny[i]=ay/l*s2;}
+       for(let i=0;i<N;i++){px[i]+=nx[i]*dd;py[i]+=ny[i]*dd;}}}
     for(const p of this.ptrs.values()){
       if(p.released)continue;
       if(p.tool==='poke'){const R=S*.1;
@@ -860,8 +923,9 @@ class Sim{
       else if(py[i]>H-m){py[i]=H-m;if(vy[i]>0){impact=Math.max(impact,vy[i]);vy[i]=-vy[i]*rest;}vx[i]*=.9;}
     }
     if(impact>this.impact)this.impact=impact;
-    const pa=P.plastic*.012,rc=.0005+(1-Math.min(1,P.plastic*4))*.0015;
-    if(pa>0){for(let i=0;i<N;i++){const dx=px[i]-cx,dy=py[i]-cy;const lx=ca*dx+sa*dy,ly=-sa*dx+ca*dy;mx[i]+=(lx-mx[i])*pa+(this.ux[i]-mx[i])*rc;my[i]+=(ly-my[i])*pa+(this.uy[i]-my[i])*rc;}}
+    const pa=P.plastic*.04,rc=P.plastic>0?P.rc:.004,yl=S*(.015+(1-P.plastic)*.08);
+    for(let i=0;i<N;i++){const dx=px[i]-cx,dy=py[i]-cy;const lx=ca*dx+sa*dy,ly=-sa*dx+ca*dy;const ex=lx-mx[i],ey=ly-my[i],ed=Math.hypot(ex,ey);
+      if(pa>0&&ed>yl){const k=pa*(ed-yl)/ed;mx[i]+=ex*k;my[i]+=ey*k;}mx[i]+=(this.ux[i]-mx[i])*rc;my[i]+=(this.uy[i]-my[i])*rc;}
   }
   frame(){
     this.t++;const P=this.props;let maxSp=0,stretchHard=0,heldAmt=0;
@@ -875,11 +939,15 @@ class Sim{
     this.shearV=Math.max(this.shearV*.9,P.shear*Math.min(1,maxSp/10));
     this.impact=0;
     for(let s=0;s<SUB;s++)this.sub();
-    if(this.impact>2.2&&this.tool==='toss'){Sound.boing(this.impact);if(P.crunch>.2)Sound.crunch(P.crunch);const c=this.centroid();this.burst(c[0],c[1]+this.S*.5,Math.min(10,Math.round(this.impact)),['star','spark'],.9);}
+    if(this.impact>2.2&&this.tool==='toss'){Sound.boing(this.impact);if(P.crunch>.2)Sound.crunch(P.crunch,P.grit);const c=this.centroid();this.burst(c[0],c[1]+this.S*.5,Math.min(10,Math.round(this.impact)),['star','spark'],.9);}
     let e=0;for(let i=0;i<N;i++)e+=Math.hypot(this.vx[i],this.vy[i]);e=e/N*SUB;
     this.energy=this.energy*.85+e*.15;
     let active=false;for(const p of this.ptrs.values())if(!p.silent&&!p.released)active=true;
-    if(active&&P.crunch>.05){this.crunchAcc+=P.crunch*Math.min(2,e)*.3;if(this.crunchAcc>1){this.crunchAcc=0;Sound.crunch(P.crunch);}}
+    {let mvx=0,mvy=0;for(let i=0;i<N;i++){mvx+=this.vx[i];mvy+=this.vy[i];}mvx/=N;mvy/=N;let dv=0;for(let i=0;i<N;i++)dv+=Math.hypot(this.vx[i]-mvx,this.vy[i]-mvy);dv=dv/N*SUB/(this.S/150);this.deform=(this.deform||0)*.7+dv*.3;
+     const tw=Math.min(1,Math.abs(this.strain-(this.lastStrain||0))*25);this.lastStrain=this.strain;
+     if(this.opt.audio){Engine.update({active:this.t-this.lastUser<60,deform:this.deform/2.2,wet:P.wet,grit:P.grit||0,dens:P.dens||1,stretch:stretchHard,twist:tw,squeak:P.squeak||.9});
+       if(active&&P.wet>.5&&this.deform>1.2&&Math.random()<P.wet*.05)Sound.bubble(.6);}}
+    if(active&&P.crunch>.05){this.crunchAcc+=P.crunch*Math.min(2,e)*.3;if(this.crunchAcc>1){this.crunchAcc=0;Sound.crunch(P.crunch,P.grit);}}
     if(active&&P.pop>.2&&e>1.2&&Math.random()<P.pop*.04){Sound.pop();const c=this.centroid();this.burst(c[0]+(Math.random()-.5)*this.S,c[1]+(Math.random()-.5)*this.S,2,['bubble'],.5);}
     const jig=Math.min(3,e)*.004+Math.abs(this.strain)*.0005;
     for(const p of this.particles){if(jig>0){p.ox+=(Math.random()-.5)*jig;p.oy+=(Math.random()-.5)*jig;}p.ox*=.94;p.oy*=.94;}
@@ -928,6 +996,10 @@ class Sim{
     else if(F.gfx==='pearl'){const a=tt*.01+this.restAngle;const lg=g.createLinearGradient(c[0]+Math.cos(a)*S,c[1]+Math.sin(a)*S,c[0]-Math.cos(a)*S,c[1]-Math.sin(a)*S);['#ffd6f0','#d6fff4','#e3d6ff','#fff6d6','#ffd6f0'].forEach((cc,i)=>lg.addColorStop(i/4,cc));g.globalAlpha=.5;g.fillStyle=lg;g.fillRect(minX-4,minY-4,bw+8,bh+8);g.globalAlpha=1;}
     else if(F.gfx==='ombre'){const lg=g.createLinearGradient(0,minY,0,maxY);lg.addColorStop(0,'rgba(255,255,255,.75)');lg.addColorStop(.5,'rgba(255,255,255,0)');lg.addColorStop(1,rgba(shade(col.body,-.35),.5));g.fillStyle=lg;g.fillRect(minX-4,minY-4,bw+8,bh+8);}
     if(col.glow){const inten=Math.min(1,col.glowBase+this.energy*.15+(this.heldAmt||0)*.6);const rg=g.createRadialGradient(c[0],c[1],0,c[0],c[1],S*1.1);rg.addColorStop(0,`rgba(255,255,255,${(.15+.35*inten).toFixed(2)})`);rg.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=rg;g.fillRect(minX-4,minY-4,bw+8,bh+8);}
+    const Pm=this.props;if(Pm.metal>.05||Pm.shimmer>.05){const a=this.restAngle*2+this.strain*2+tt*.004;const lg2=g.createLinearGradient(c[0]+Math.cos(a)*S*1.2,c[1]+Math.sin(a)*S*1.2,c[0]-Math.cos(a)*S*1.2,c[1]-Math.sin(a)*S*1.2);
+      if(Pm.metal>.05){const al=Math.min(.75,Pm.metal*.7);[[0,`rgba(255,255,255,${al})`],[.25,'rgba(90,95,110,.35)'],[.5,`rgba(255,255,255,${al*.8})`],[.75,'rgba(60,65,80,.35)'],[1,`rgba(255,255,255,${al})`]].forEach(([o,cc])=>lg2.addColorStop(o,cc));}
+      else{const al=Math.min(.5,Pm.shimmer*.45)*(.4+.6*col.see);['#ffd6f0','#d6fff4','#e3d6ff','#fff6d6','#ffd6f0'].forEach((cc,i)=>lg2.addColorStop(i/4,rgba(cc,al)));}
+      g.fillStyle=lg2;g.fillRect(minX-4,minY-4,bw+8,bh+8);}
     const lg=g.createRadialGradient(c[0]-S*.35,c[1]-S*.42,S*.05,c[0],c[1],S*1.45);
     lg.addColorStop(0,'rgba(255,255,255,.34)');lg.addColorStop(.42,'rgba(255,255,255,0)');lg.addColorStop(1,'rgba(40,10,55,.32)');
     g.fillStyle=lg;g.fillRect(minX-4,minY-4,bw+8,bh+8);
@@ -940,6 +1012,11 @@ class Sim{
       else if(p.kind==='bubbles'){g.strokeStyle='rgba(255,255,255,.85)';g.lineWidth=Math.max(1,r*.15);g.beginPath();g.arc(x,y,r,0,TAU);g.stroke();g.fillStyle='rgba(255,255,255,.7)';g.beginPath();g.arc(x-r*.35,y-r*.35,r*.2,0,TAU);g.fill();}
       else if(p.kind==='confetti'){g.save();g.translate(x,y);g.rotate(p.rot+this.strain*1.5);g.fillStyle=p.c;g.fillRect(-r,-r*.4,r*2,r*.8);g.restore();}
       else if(p.kind==='crystals'){const tw=.6+.4*Math.sin(tt*.07+p.tw*4);g.fillStyle=p.c;g.globalAlpha=a*tw;g.beginPath();g.moveTo(x,y-r);g.lineTo(x+r*.6,y);g.lineTo(x,y+r);g.lineTo(x-r*.6,y);g.closePath();g.fill();}
+      else if(p.kind==='sequins'){const fl=.5+.5*Math.sin(tt*.09+p.tw*6+this.strain*3);g.fillStyle=p.c;g.beginPath();g.ellipse(x,y,r,r*(.35+.65*Math.abs(Math.sin(p.rot+this.restAngle))),p.rot,0,TAU);g.fill();g.fillStyle=`rgba(255,255,255,${(.2+.7*fl).toFixed(2)})`;g.beginPath();g.arc(x-r*.3,y-r*.2,r*.3,0,TAU);g.fill();}
+      else if(p.kind==='cubes'){g.save();g.translate(x,y);g.rotate(p.rot+this.restAngle);g.fillStyle=rgba(p.c,.72);g.beginPath();if(g.roundRect)g.roundRect(-r,-r,r*2,r*2,r*.35);else g.rect(-r,-r,r*2,r*2);g.fill();g.fillStyle='rgba(255,255,255,.45)';g.fillRect(-r*.6,-r*.7,r*.6,r*.3);g.restore();}
+      else if(p.kind==='rice'){g.save();g.translate(x,y);g.rotate(p.rot+this.restAngle);g.fillStyle=p.c;g.beginPath();g.ellipse(0,0,r,r*.38,0,0,TAU);g.fill();g.restore();}
+      else if(p.kind==='ice'){g.save();g.translate(x,y);g.rotate(p.rot);g.fillStyle='rgba(235,250,255,.7)';g.strokeStyle='rgba(255,255,255,.9)';g.lineWidth=1;g.beginPath();g.moveTo(-r,-r*.3);g.lineTo(-r*.2,-r);g.lineTo(r,-r*.4);g.lineTo(r*.7,r*.8);g.lineTo(-r*.6,r*.7);g.closePath();g.fill();g.stroke();g.restore();}
+      else if(p.kind==='starbits'){g.fillStyle=p.c;g.beginPath();for(let i=0;i<10;i++){const a=p.rot+this.strain*1.5-Math.PI/2+i*Math.PI/5,rr=i%2?r*.42:r;g.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr);}g.closePath();g.fill();}
       else if(p.kind==='glitter'){const tw=.5+.5*Math.sin(tt*.08+p.tw*5);const s=r*(.5+tw*.8);g.globalAlpha=Math.min(1,a*(.35+tw*.65));g.fillStyle=p.c;g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s*.3,y-s*.3);g.lineTo(x+s,y);g.lineTo(x+s*.3,y+s*.3);g.lineTo(x,y+s);g.lineTo(x-s*.3,y+s*.3);g.lineTo(x-s,y);g.lineTo(x-s*.3,y-s*.3);g.closePath();g.fill();}
       else{g.fillStyle=p.c;g.beginPath();g.arc(x,y,r,0,TAU);g.fill();g.fillStyle='rgba(255,255,255,.55)';g.beginPath();g.arc(x-r*.3,y-r*.3,r*.35,0,TAU);g.fill();}
     }
@@ -983,7 +1060,7 @@ const STARTERS=[
  {id:'starter-cloud',name:'Cloud Nine',shape:'cloud',color:'#dfeaff',finish:'pearl',pattern:'stars',patColor:'#ffd23f',face:'sleepy',acc:'none',fill:{gel:6,floam:3,glitter:2},starter:true,batch:'SL-0104'},
  {id:'starter-bear',name:'Sandy Bear',shape:'bear',color:'#c99a6b',finish:'frosted',pattern:'none',patColor:'auto',face:'happy',acc:'partyhat',fill:{sand:6,chalk:3},starter:true,batch:'SL-0105'},
  {id:'starter-avo',name:'Avo Chill',shape:'avocado',color:'#c8e27c',finish:'smooth',pattern:'none',patColor:'auto',face:'happy',acc:'glasses',fill:{honey:4,vaseline:5},starter:true,batch:'SL-0106'},
-];
+].map(clean);
 const Store={items:[],col:null,cloud:false,
   load(){let v=null;try{const raw=localStorage.getItem(KEY);v=raw?JSON.parse(raw):null;}catch(e){v=null;}this.items=Array.isArray(v)?v.filter(valid).map(clean).filter(valid):STARTERS.map(s=>({...s,created:Date.now()}));},
   persist(){try{localStorage.setItem(KEY,JSON.stringify(this.items));}catch(e){}},
@@ -993,16 +1070,16 @@ const Store={items:[],col:null,cloud:false,
     if(this.col)this.col.doc(c.id).set({recipe:c,updated:c.updated}).then(()=>{if(!this.cloud){this.cloud=true;renderStatus();}}).catch(()=>{this.col=null;this.cloud=false;renderStatus();});updateCount();},
   remove(id){this.items=this.items.filter(x=>x.id!==id);this.persist();if(this.col)this.col.doc(id).delete().catch(()=>{});updateCount();},};
 function valid(r){return r&&typeof r==='object'&&typeof r.id==='string'&&/^[A-Za-z0-9_\-]{1,60}$/.test(r.id)&&SHAPES[r.shape]&&r.fill&&typeof r.fill==='object';}
-function clean(r){const fill={};for(const[k,v]of Object.entries(r.fill||{}))if(Object.prototype.hasOwnProperty.call(MAT,k)&&v>0)fill[k]=Math.min(MAXSCOOPS,Math.round(+v)||0);
+function clean(r){const fill={};const sc=r.fv===2?1:10;for(const[k,v]of Object.entries(r.fill||{}))if(Object.prototype.hasOwnProperty.call(MAT,k)&&v>0)fill[k]=Math.min(MAXSCOOPS,Math.round(+v*sc)||0);
   const hex=v=>typeof v==='string'&&/^#[0-9a-fA-F]{6}$/.test(v);const own=(o,k)=>typeof k==='string'&&Object.prototype.hasOwnProperty.call(o,k);
-  return{id:r.id,name:String(r.name||'Unnamed squishy').slice(0,32),shape:own(SHAPES,r.shape)?r.shape:'ball',color:hex(r.color)?r.color:'#ffb3c7',finish:own(FINISHES,r.finish)?r.finish:'smooth',pattern:own(PATTERNS,r.pattern)?r.pattern:'none',patColor:hex(r.patColor)?r.patColor:'auto',face:own(FACES,r.face)?r.face:'happy',acc:own(ACCS,r.acc)?r.acc:'none',fill,batch:/^SL-\d{4}$/.test(r.batch||'')?r.batch:batchNo(),created:+r.created||Date.now(),starter:!!r.starter};}
+  return{id:r.id,name:String(r.name||'Unnamed squishy').slice(0,32),shape:own(SHAPES,r.shape)?r.shape:'ball',color:hex(r.color)?r.color:'#ffb3c7',finish:own(FINISHES,r.finish)?r.finish:'smooth',pattern:own(PATTERNS,r.pattern)?r.pattern:'none',patColor:hex(r.patColor)?r.patColor:'auto',face:own(FACES,r.face)?r.face:'happy',acc:own(ACCS,r.acc)?r.acc:'none',size:own(SIZES,r.size)?r.size:'m',thick:own(THICKS,r.thick)?r.thick:'std',fv:2,fill,batch:/^SL-\d{4}$/.test(r.batch||'')?r.batch:batchNo(),created:+r.created||Date.now(),starter:!!r.starter};}
 function batchNo(){return'SL-'+String(Math.floor(1000+Math.random()*9000));}
 function encodeShare(r){const c=clean(r);delete c.id;delete c.starter;delete c.created;return'SQL1.'+btoa(unescape(encodeURIComponent(JSON.stringify(c))));}
 function decodeShare(s){s=String(s||'').trim();if(!s.startsWith('SQL1.'))throw new Error('prefix');const o=JSON.parse(decodeURIComponent(escape(atob(s.slice(5).replace(/\s+/g,'')))));if(!o||typeof o!=='object')throw new Error('bad');o.id=uid();const r=clean(o);if(!valid(r))throw new Error('bad');return r;}
 
 /* ---------------- app state ---------------- */
 const state={view:'home',step:0,draft:null,current:null,colorAuto:true,matCat:'all',counts:{squish:0,poke:0,pull:0,twist:0},calm:0};
-function newDraft(){return{id:uid(),name:'',shape:'ball',color:SHAPES.ball.color,finish:'smooth',pattern:'none',patColor:'auto',face:'happy',acc:'none',fill:{dough:6},batch:batchNo(),created:Date.now()};}
+function newDraft(){return{id:uid(),name:'',shape:'ball',color:SHAPES.ball.color,finish:'smooth',pattern:'none',patColor:'auto',face:'happy',acc:'none',size:'m',thick:'std',fv:2,fill:{dough:85},batch:batchNo(),created:Date.now()};}
 state.draft=newDraft();
 
 const toastEl=$('#toast');let toastT;
@@ -1015,7 +1092,7 @@ function matChips(r,max=4){const P=blend(r.fill);return P.list.slice(0,max).map(
 const FEEL_COLORS=['#ff6fa8','#ff9f43','#b28cff','#3ad6a6','#ffd23f','#4cc3ff'];
 function feelHTML(P){const rows=[['Softness',P.soft],['Stretch',(P.stretch-1)/1.6],['Slow rise',P.rise/4],['Bounce',P.bounce],['Crunch',P.crunch],[P.glow>0?'Glow':'Shine',P.glow>0?P.glow:P.gloss]];
   return`<div class="feel">${rows.map(([n,v],i)=>`<div><span>${n}</span><div class="meter"><b style="width:${Math.round(clamp(v,0,1)*100)}%;background:${FEEL_COLORS[i]}"></b></div></div>`).join('')}</div>`;}
-function looksLine(r){const bits=[FINISHES[r.finish].name];if(r.pattern&&r.pattern!=='none')bits.push(PATTERNS[r.pattern].name);if(r.acc&&r.acc!=='none')bits.push(ACCS[r.acc]);return bits.join(' · ');}
+function looksLine(r){const bits=[(SIZES[r.size||'m']||SIZES.m)[0],FINISHES[r.finish].name];if(r.thick&&r.thick!=='std')bits.push(THICKS[r.thick][0]);if(r.pattern&&r.pattern!=='none')bits.push(PATTERNS[r.pattern].name);if(r.acc&&r.acc!=='none')bits.push(ACCS[r.acc]);return bits.join(' · ');}
 function labelHTML(r,P){return`<div class="row"><h3>${esc(r.name||'Unnamed squishy')}</h3><span class="mono">${esc(SHAPE_NAME(r.shape))}</span></div>
   <div class="row mono"><span>Batch ${esc(r.batch||'SL-0000')}</span><span>Net wt ${P.grams} g</span><span>Fill ${P.total}/${CAP}</span></div>
   <div class="chips">${matChips(r,6)}</div>${feelHTML(P)}<div class="mono">${esc(P.status)} · ${esc(looksLine(r))}</div>`;}
@@ -1025,8 +1102,8 @@ const sims={};
 function makeSim(id,opt){const cv=document.getElementById(id);const s=new Sim(cv,{interactive:true,...opt});sims[id]=s;
   if(window.ResizeObserver)new ResizeObserver(()=>{if(s.recipe)s.layout();}).observe(cv);return s;}
 const homeSim=makeSim('homeCanvas',{idle:true});
-const makeSimI=makeSim('makeCanvas',{tool:'poke'});
-const playSim=makeSim('playCanvas',{onAction:a=>{const k=a==='snap'?'pull':a==='toss'?'twist':a;if(state.counts[k]!=null){state.counts[k]++;renderCounters();}state.calm=Math.min(100,state.calm+(a==='twist'?2:1.4));}});
+const makeSimI=makeSim('makeCanvas',{tool:'poke',audio:true});
+const playSim=makeSim('playCanvas',{audio:true,onAction:a=>{const k=a==='snap'?'pull':a==='toss'?'twist':a;if(state.counts[k]!=null){state.counts[k]++;renderCounters();}state.calm=Math.min(100,state.calm+(a==='twist'?2:1.4));}});
 let active=[];
 function loop(){for(const s of active)if(s.recipe)s.frame();
   if(state.view==='play'){state.calm=Math.min(100,state.calm+playSim.energy*.004);$('#calmBar').style.width=state.calm.toFixed(1)+'%';$('#calmPct').textContent=Math.round(state.calm)+'%';}
@@ -1035,7 +1112,7 @@ requestAnimationFrame(loop);
 
 /* ---------------- views ---------------- */
 function route(){const h=(location.hash||'#home').slice(1);show(['home','make','play','library'].includes(h)?h:'home');}
-function show(v){state.view=v;
+function show(v){state.view=v;Engine.silence();
   document.querySelectorAll('.view').forEach(el=>el.hidden=el.id!=='view-'+v);
   document.querySelectorAll('nav a').forEach(a=>{if(a.dataset.nav===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   active=[];
@@ -1046,7 +1123,7 @@ function show(v){state.view=v;
   requestAnimationFrame(()=>active.forEach(s=>s.layout(true)));
   window.scrollTo(0,0);
 }
-function renderHomeStats(){const items=[[`${SHAPE_KEYS.length} shapes`,'#ffd6e6'],[`${MATS.length} materials`,'#fff0b8'],[`${Object.keys(FINISHES).length} skins`,'#ccf5e6'],[`${Object.keys(PATTERNS).length-1} patterns`,'#d8e8ff'],[`${TOOLS.length} ways to play`,'#eadcff']];$('#homeStats').innerHTML=items.map(([t,c])=>`<span style="background:${c}">${t}</span>`).join('');}
+function renderHomeStats(){const items=[[`${SHAPE_KEYS.length} shapes`,'#ffd6e6'],[`${MATS.length} materials`,'#fff0b8'],['Fill up to 150 scoops','#ffe0cc'],[`${Object.keys(FINISHES).length} skins`,'#ccf5e6'],[`${Object.keys(PATTERNS).length-1} patterns`,'#d8e8ff'],[`${TOOLS.length} ways to play`,'#eadcff']];$('#homeStats').innerHTML=items.map(([t,c])=>`<span style="background:${c}">${t}</span>`).join('');}
 function playRecipe(r,celebrate){state.current=JSON.parse(JSON.stringify(r));state.counts={squish:0,poke:0,pull:0,twist:0};state.calm=0;if(location.hash==='#play')show('play');else location.hash='#play';if(celebrate)setTimeout(()=>playSim.celebrate(),120);}
 function editRecipe(r,copy){state.draft=clean(JSON.parse(JSON.stringify(r)));if(copy){state.draft.id=uid();state.draft.name=(r.name||'')+' copy';state.draft.batch=batchNo();state.draft.starter=false;}state.colorAuto=false;state.step=copy?0:3;
   makeSimI.recipe=null;if(location.hash==='#make')show('make');else location.hash='#make';}
@@ -1081,25 +1158,38 @@ $('#importBtn').onclick=()=>{const msg=$('#importMsg');try{const r=decodeShare($
 const shapeGrid=$('#shapeGrid');
 shapeGrid.innerHTML=SHAPE_KEYS.map(k=>`<button class="shape-btn" type="button" data-shape="${k}" aria-pressed="false" style="--sc:${SHAPES[k].color}"><canvas aria-hidden="true"></canvas>${esc(SHAPES[k].name)}</button>`).join('');
 let shapeThumbsDone=false;
-function renderShapeThumbs(){if(shapeThumbsDone)return;shapeThumbsDone=true;shapeGrid.querySelectorAll('.shape-btn').forEach(b=>{const k=b.dataset.shape;renderStatic(b.querySelector('canvas'),{id:'thumb-'+k,shape:k,color:SHAPES[k].color,finish:'smooth',pattern:'none',face:'happy',acc:'none',fill:{dough:9}});});}
+function renderShapeThumbs(){if(shapeThumbsDone)return;shapeThumbsDone=true;shapeGrid.querySelectorAll('.shape-btn').forEach(b=>{const k=b.dataset.shape;renderStatic(b.querySelector('canvas'),{id:'thumb-'+k,shape:k,color:SHAPES[k].color,finish:'smooth',pattern:'none',face:'happy',acc:'none',fv:2,fill:{dough:90}});});}
 const onPick=(sel,key,fn)=>$(sel).addEventListener('click',e=>{const b=e.target.closest(`[data-${key}]`);if(!b)return;fn(b.dataset[key]);});
 onPick('#shapeGrid','shape',v=>{state.draft.shape=v;if(state.colorAuto)state.draft.color=SHAPES[v].color;updateDraft();});
 onPick('#swatches','color',v=>{state.draft.color=v;state.colorAuto=false;updateDraft(true);});
 onPick('#finishOpts','finish',v=>{state.draft.finish=v;updateDraft(true);});
 onPick('#patternOpts','pattern',v=>{state.draft.pattern=v;updateDraft(true);});
+onPick('#sizeOpts','size',v=>{state.draft.size=v;updateDraft(true);});
+onPick('#thickOpts','thick',v=>{state.draft.thick=v;updateDraft(true);});
 onPick('#patSwatches','pat',v=>{state.draft.patColor=v;updateDraft(true);});
 onPick('#faceOpts','face',v=>{state.draft.face=v;updateDraft(true);});
 onPick('#accOpts','acc',v=>{state.draft.acc=v;updateDraft(true);if(v!=='none')makeSimI.burst(makeSimI.hx,makeSimI.hy-makeSimI.S,8,['spark','star'],.8);});
 onPick('#matFilter','cat',v=>{state.matCat=v;renderOptions();});
-$('#matList').addEventListener('click',e=>{const b=e.target.closest('[data-mat]');if(!b)return;const id=b.dataset.mat,d=+b.dataset.d;const f=state.draft.fill;const total=Object.values(f).reduce((a,c)=>a+c,0);
-  if(d>0&&total>=MAXSCOOPS){toast('The casing is packed. Remove a scoop first.');return;}
-  f[id]=Math.max(0,(f[id]||0)+d);if(!f[id])delete f[id];Sound.init();if(d>0)makeSimI.dropIn(MAT[id].color);updateDraft(true);});
+function addScoops(id,d){const f=state.draft.fill;const total=Object.values(f).reduce((a,c)=>a+c,0);
+  if(d>0){d=Math.min(d,MAXSCOOPS-total);if(d<=0){toast('The casing is packed full. Remove some first.');return false;}}
+  else if(!f[id])return false;
+  f[id]=Math.max(0,(f[id]||0)+d);if(!f[id])delete f[id];Sound.init();const now=performance.now();if(d>0&&now-(addScoops.t||0)>140){addScoops.t=now;makeSimI.dropIn(MAT[id].color);}updateDraft(true);return true;}
+let rep=null;const stopRep=()=>{clearTimeout(rep);clearInterval(rep);rep=null;};
+$('#matList').addEventListener('pointerdown',e=>{const b=e.target.closest('button[data-mat]');if(!b||b.disabled)return;e.preventDefault();stopRep();const id=b.dataset.mat,d=+b.dataset.d;if(!addScoops(id,d))return;if(Math.abs(d)===1)rep=setTimeout(()=>{rep=setInterval(()=>{if(!addScoops(id,d))stopRep();},60);},350);});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,stopRep));
+$('#matList').addEventListener('click',e=>{const b=e.target.closest('button[data-mat]');if(!b||e.detail!==0)return;addScoops(b.dataset.mat,+b.dataset.d);});
+$('#matList').addEventListener('change',e=>{const inp=e.target.closest('input[data-matin]');if(!inp)return;const id=inp.dataset.matin;const f=state.draft.fill;const cur=f[id]||0;const other=Object.values(f).reduce((a,c)=>a+c,0)-cur;const v=clamp(Math.round(+inp.value)||0,0,MAXSCOOPS-other);if(v===cur){inp.value=cur;return;}addScoops(id,v-cur);});
+$('#fillbar').addEventListener('click',e=>{const b=e.target.closest('[data-fillact]');if(!b)return;const f=state.draft.fill;const ent=Object.entries(f);const tot=ent.reduce((a,[,c])=>a+c,0);
+  if(b.dataset.fillact==='empty')state.draft.fill={};
+  else if(tot>0){const k=CAP/tot;const nf={};let sm=0;ent.forEach(([id,c])=>{nf[id]=Math.max(1,Math.round(c*k));sm+=nf[id];});const big=ent.slice().sort((a,b)=>b[1]-a[1])[0][0];nf[big]=Math.max(1,nf[big]+CAP-sm);state.draft.fill=nf;}
+  else state.draft.fill={dough:CAP};
+  Sound.init();if(b.dataset.fillact!=='empty')makeSimI.dropIn(state.draft.color);updateDraft(true);});
 $('#stepTabs').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(b){state.step=+b.dataset.step;renderSteps();}});
 $('#stepBack').onclick=()=>{state.step=Math.max(0,state.step-1);renderSteps();};
 $('#stepNext').onclick=()=>{state.step=Math.min(4,state.step+1);renderSteps();};
 $('#startOver').onclick=()=>{state.draft=newDraft();state.colorAuto=true;state.step=0;makeSimI.recipe=null;renderMake();makeSimI.setRecipe(state.draft);};
 $('#surprise').onclick=()=>{const d=state.draft;d.shape=pick(SHAPE_KEYS);d.color=pick(PALETTE);d.finish=pick(Object.keys(FINISHES));d.pattern=Math.random()<.5?'none':pick(Object.keys(PATTERNS));d.patColor=pick(PAT_COLORS);d.face=pick(Object.keys(FACES).filter(k=>k!=='none'));d.acc=Math.random()<.4?'none':pick(Object.keys(ACCS));
-  const fill={};let n=0;const base=pick(MATS.filter(m=>!m.addin));fill[base.id]=5+Math.floor(Math.random()*3);n=fill[base.id];for(let k=0;k<2;k++){const m=pick(MATS);if(n>=11)break;const add=1+Math.floor(Math.random()*2);fill[m.id]=(fill[m.id]||0)+add;n+=add;}d.fill=fill;state.colorAuto=false;Sound.init();updateDraft();setTimeout(()=>makeSimI.celebrate(),80);};
+  const fill={};let n=0;const base=pick(MATS.filter(m=>!m.addin));d.size=pick(['s','m','l']);d.thick=pick(['thin','std','thick']);fill[base.id]=55+Math.floor(Math.random()*25);n=fill[base.id];for(let k=0;k<3;k++){const m=pick(MATS);if(n>=110)break;const add=5+Math.floor(Math.random()*15);fill[m.id]=(fill[m.id]||0)+add;n+=add;}d.fill=fill;state.colorAuto=false;Sound.init();updateDraft();setTimeout(()=>makeSimI.celebrate(),80);};
 $('#nameInput').addEventListener('input',e=>{state.draft.name=e.target.value;renderMakeLabel();});
 const ADJ=['Squishy','Mellow','Gooey','Bouncy','Sleepy','Crunchy','Wobbly','Pudgy','Velvet','Sunny','Mochi','Jelly','Fizzy','Cozy','Snuggly','Sparkle','Rainbow','Bubbly','Dreamy','Glowy'];
 const NOUN={ball:['Bun','Dumpling','Puff','Bean'],cheese:['Cheddar','Brie','Gouda','Swiss'],strawberry:['Berry','Jam','Shortcake'],cat:['Whiskers','Mittens','Purr','Tabby'],bunny:['Hopper','Cottontail','Bunbun'],bear:['Cub','Honeybear','Teddy'],frog:['Ribbit','Lilypad','Hopscotch'],heart:['Sweetheart','Valentine','Crush'],star:['Twinkle','Comet','Nova'],cloud:['Nimbus','Fluff','Drizzle'],ghost:['Boo','Spooky','Wisp'],mushroom:['Shroomy','Toadstool','Cap'],peach:['Peachy','Nectar','Fuzz'],dumpling:['Bao','Gyoza','Pocket'],avocado:['Avo','Guac','Pit']};
@@ -1120,25 +1210,28 @@ function renderOptions(){const d=state.draft;
   $('#swatches').innerHTML=cols.map(c=>`<button class="sw" type="button" data-color="${c}" aria-pressed="${c===d.color}" aria-label="Color ${c}" style="background:${c}"></button>`).join('')+`<label class="custom-color"><input type="color" id="customColor" value="${d.color}">Custom</label>`;
   $('#customColor').addEventListener('input',e=>{state.draft.color=e.target.value;state.colorAuto=false;makeSimI.setRecipe(state.draft,true);renderMakeLabel();});
   $('#customColor').addEventListener('change',()=>renderOptions());
+  $('#sizeOpts').innerHTML=Object.entries(SIZES).map(([k,[n,t]])=>optBtn('size',k,n,k===(d.size||'m'),null,t)).join('');
+  $('#thickOpts').innerHTML=Object.entries(THICKS).map(([k,[n,t]])=>optBtn('thick',k,n,k===(d.thick||'std'),null,t)).join('');
   $('#finishOpts').innerHTML=Object.entries(FINISHES).map(([k,f])=>optBtn('finish',k,f.name,k===d.finish,f.sw,f.note)).join('');
   $('#patternOpts').innerHTML=Object.entries(PATTERNS).map(([k,p])=>optBtn('pattern',k,p.name,k===d.pattern,p.sw)).join('');
   $('#patSwatches').innerHTML=PAT_COLORS.map(c=>`<button class="sw sm${c==='auto'?' auto':''}" type="button" data-pat="${c}" aria-pressed="${c===d.patColor}" aria-label="${c==='auto'?'Automatic pattern color':'Pattern color '+c}" ${c==='auto'?'':`style="background:${c}"`}></button>`).join('');
   $('#faceOpts').innerHTML=Object.entries(FACES).map(([k,n])=>optBtn('face',k,n,k===d.face)).join('');
   $('#accOpts').innerHTML=Object.entries(ACCS).map(([k,n])=>optBtn('acc',k,n,k===d.acc)).join('');
-  const total=Object.values(d.fill).reduce((a,c)=>a+c,0);const P=blend(d.fill);
-  let segs='';const order=P.list.flatMap(([id,c])=>Array(c).fill(MAT[id].color));for(let i=0;i<MAXSCOOPS;i++)segs+=`<i class="${i>=CAP?'full':''}${i===CAP-1?' cap':''}" style="${order[i]?`background:${order[i]}`:''}"></i>`;
-  $('#fillbar').innerHTML=`<div class="row"><span>Fill · ${total}/${CAP} scoops</span><span>${esc(P.status)}</span></div><div class="scoops" aria-hidden="true">${segs}</div><div class="row mono"><span>Empty</span><span>Full line</span><span>Packed</span></div>`;
+  const total=Object.values(d.fill).reduce((a,c)=>a+c,0);const P=props(d);
+  const segs=P.list.map(([id,c])=>`<i style="width:${(c/MAXSCOOPS*100).toFixed(2)}%;background:${MAT[id].color}" title="${esc(MAT[id].name)} ${c}"></i>`).join('');
+  $('#fillbar').innerHTML=`<div class="row"><span>Fill · ${total}/${CAP} scoops</span><span>${esc(P.status)}</span></div><div class="fillmeter" aria-hidden="true">${segs}<span class="line"></span></div><div class="row mono"><span>Empty</span><span>Full at 100</span><span>Packed 150</span></div><div class="fill-actions"><button class="btn small" type="button" data-fillact="fit">Fill to 100</button><button class="btn small ghost" type="button" data-fillact="empty">Empty it</button></div>`;
   $('#matFilter').innerHTML=Object.entries(MAT_CATS).map(([k,n])=>`<button type="button" data-cat="${k}" aria-pressed="${k===state.matCat}">${n}</button>`).join('');
   $('#matList').innerHTML=MATS.filter(m=>state.matCat==='all'||m.cat===state.matCat).map(m=>{const c=d.fill[m.id]||0;return`<div class="mat-row${c?' on':''}" style="--mc:${m.color}"><div class="blob" style="background:${m.color}"></div><div><b>${esc(m.name)}${m.addin?' <span class="badge">add-in</span>':''}${m.id==='oobleck'||m.id==='glow'?' <span class="badge">new</span>':''}</b><small>${esc(m.blurb)}</small></div>
-    <div class="stepper"><button type="button" data-mat="${m.id}" data-d="-1" aria-label="Remove a scoop of ${esc(m.name)}" ${c?'':'disabled'}>−</button><output aria-label="${esc(m.name)} scoops">${c}</output><button type="button" data-mat="${m.id}" data-d="1" aria-label="Add a scoop of ${esc(m.name)}">+</button></div></div>`;}).join('');
+    <div class="stepper"><button type="button" data-mat="${m.id}" data-d="-1" aria-label="Remove a scoop of ${esc(m.name)}" ${c?'':'disabled'}>−</button><input type="number" inputmode="numeric" min="0" max="${MAXSCOOPS}" value="${c}" data-matin="${m.id}" aria-label="${esc(m.name)} scoops"><button type="button" data-mat="${m.id}" data-d="1" aria-label="Add a scoop of ${esc(m.name)}">+</button><button type="button" class="ten" data-mat="${m.id}" data-d="10" aria-label="Add 10 scoops of ${esc(m.name)}">+10</button></div></div>`;}).join('');
 }
-function renderMakeLabel(){$('#makeLabel').innerHTML=labelHTML(state.draft,blend(state.draft.fill));}
-function renderSum(){const d=state.draft,P=blend(d.fill);$('#recipeSum').innerHTML=`<div class="mono">Recipe card</div><div><b>${esc(SHAPE_NAME(d.shape))}</b> casing · ${esc(looksLine(d))} · ${esc(FACES[d.face].toLowerCase())} face</div><div class="chips">${matChips(d,8)}</div><div class="mono">${esc(P.status)} · Net wt ${P.grams} g</div>`;}
+function renderMakeLabel(){$('#makeLabel').innerHTML=labelHTML(state.draft,props(state.draft));}
+function renderSum(){const d=state.draft,P=props(d);$('#recipeSum').innerHTML=`<div class="mono">Recipe card</div><div><b>${esc(SHAPE_NAME(d.shape))}</b> casing · ${esc(looksLine(d))} · ${esc(FACES[d.face].toLowerCase())} face</div><div class="chips">${matChips(d,8)}</div><div class="mono">${esc(P.status)} · Net wt ${P.grams} g</div>`;}
 function updateDraft(keep){makeSimI.setRecipe(state.draft,keep);renderOptions();renderMakeLabel();if(state.step===4)renderSum();}
 
 /* ---------------- play ---------------- */
 const TOOLS=[
  ['squish','Squish','#ff8fbd','Press and hold to squish it flat. Let go and watch it rise.','<path d="M4 16c3 3.5 13 3.5 16 0"/><path d="M12 3v8M8.5 7.5 12 11l3.5-3.5"/>'],
+ ['mold','Mold','#f7c59f','Drag across it to sculpt it. Moldable fills like clay and putty keep the shape.','<path d="M4 19c3-7 7-10 12-11"/><path d="M15 8c2.5-2.5 5-1.5 5 .5s-2 3.5-4.5 4"/><circle cx="5" cy="18.5" r="1.5"/>'],
  ['smash','Smash','#ff8a80','Tap to smash it flat in one go.','<path d="M12 2v5M5 5l3 3M19 5l-3 3"/><path d="M3 17c3-4 15-4 18 0v2H3z"/>'],
  ['poke','Poke','#ffb877','Tap or hold to poke a dent. Poke the edge to push it in.','<path d="M12 3v10"/><path d="M7 20c1.5-3.2 8.5-3.2 10 0"/><circle cx="12" cy="14.5" r="1.5"/>'],
  ['pull','Pull','#ffe066','Grab the edge and drag to stretch it. Too far and it snaps back.','<path d="M3 12h6M15 12h6"/><path d="M6 9 3 12l3 3M18 9l3 3-3 3"/><circle cx="12" cy="12" r="2.5"/>'],
@@ -1150,7 +1243,7 @@ const TOOLS=[
  ['jiggle','Jiggle','#7fe0dc','Wiggle back and forth over it to make it wobble.','<path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M6 18h12"/>'],
  ['toss','Toss','#e5a8ff','Grab it and fling it. It bounces off the walls.','<path d="M4 20c3-8 8-13 15-15"/><path d="M14 4.5 19 5l-.5 5"/><circle cx="6" cy="17" r="2"/>'],
 ];
-const KEYS='1234567890-';
+const KEYS='1234567890-=';
 $('#tools').innerHTML=TOOLS.map(([k,n,c,,ic],i)=>`<button class="tool" type="button" data-tool="${k}" aria-pressed="false" style="--tc:${c}"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg></span>${n}<kbd>${KEYS[i]}</kbd></button>`).join('');
 function setTool(k){playSim.tool=k;playSim.ptrs.clear();document.querySelectorAll('.tool').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===k)));$('#toolHint').textContent=TOOLS.find(t=>t[0]===k)[3];}
 $('#tools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(b)setTool(b.dataset.tool);});
