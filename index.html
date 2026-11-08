@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-UAZHe4fQXzuKjuhzo6laIfZMM3pvlsy7LhKUQGwZlD8='; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-4xFuS6UEhimt+RwD34LfRD5DoVnjud3wgt8UWdnA88Q='; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Squish Lab</title>
@@ -103,7 +103,8 @@ main{padding-block:22px 60px}
 
 /* play mats */
 .mat{position:relative;border-radius:var(--r);background-color:var(--mat);background-image:radial-gradient(var(--mat-dot) 1.5px,transparent 1.7px);background-size:22px 22px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line),var(--shadow)}
-.mat canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.mat canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button,a,input{touch-action:manipulation}
 .mat .corner{position:absolute;left:14px;bottom:12px;pointer-events:none;background:var(--surface);padding:2px 8px;border-radius:999px}
 .mat.m-rainbow{background-color:#ffe6f0;background-image:radial-gradient(rgba(255,255,255,.65) 1.5px,transparent 1.7px),linear-gradient(135deg,#ffd1e3,#ffe7c4,#fff6b8,#d4f7e6,#d2ecff,#e6dcff);background-size:22px 22px,100% 100%}
 .mat.m-candy{background-color:#ffe3ee;background-image:repeating-linear-gradient(45deg,#ffd3e4 0 26px,#fff2f7 26px 52px)}
@@ -133,7 +134,7 @@ main{padding-block:22px 60px}
 /* library cards */
 .lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:transform .15s ease}
-.card:hover{transform:translateY(-3px) rotate(-.4deg)}
+@media (hover:hover){.card:hover{transform:translateY(-3px) rotate(-.4deg)}}
 .card .thumb{aspect-ratio:1.25/1;border-radius:0;box-shadow:none;cursor:pointer}
 .card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
 .card h3{font-size:21px;overflow-wrap:anywhere}
@@ -168,7 +169,7 @@ main{padding-block:22px 60px}
 .step > p{margin:0 0 14px;color:var(--muted)}
 .shape-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
 .shape-btn{border:2px solid var(--line);background:color-mix(in srgb,var(--sc) 18%,var(--surface));border-radius:var(--r-sm);padding:6px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800;font-size:13px;transition:transform .12s ease}
-.shape-btn:hover{transform:translateY(-2px)}
+@media (hover:hover){.shape-btn:hover{transform:translateY(-2px)}}
 .shape-btn canvas{width:100%;aspect-ratio:1/1;display:block}
 .shape-btn[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 3px var(--sc)}
 .sub{font-weight:800;font-size:15px;margin:20px 0 8px;display:flex;align-items:center;gap:8px}
@@ -221,7 +222,7 @@ main{padding-block:22px 60px}
 .tool-hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);text-align:center;background:var(--surface);border:1px solid var(--line);padding:5px 14px;border-radius:999px;font-size:13px;font-weight:800;pointer-events:none;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;box-shadow:var(--shadow)}
 .tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px;margin-top:12px}
 .tool{border:2px solid var(--line);background:var(--surface);border-radius:var(--r-sm);padding:8px 4px 7px;display:flex;flex-direction:column;align-items:center;gap:3px;font-weight:800;font-size:13px;transition:transform .1s ease}
-.tool:hover{transform:translateY(-2px)}
+@media (hover:hover){.tool:hover{transform:translateY(-2px)}}
 .tool .ic{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--tc);color:#2a1a33}
 .tool svg{width:22px;height:22px}
 .tool kbd{font-family:var(--mono);font-size:10px;color:var(--muted)}
@@ -268,11 +269,23 @@ details.import textarea{width:100%;min-height:70px;margin:10px 0 8px;border:1.5p
   .tools{grid-template-columns:repeat(4,minmax(0,1fr))}
   .tool{font-size:12px}
   .play-stage{aspect-ratio:1/1.05}
-  .tool-hint{white-space:normal;width:calc(100% - 24px);border-radius:14px}
+  .tool-hint{white-space:normal;width:calc(100% - 24px);border-radius:14px;font-size:12px}
+  .play-stage{aspect-ratio:auto;height:min(60vh,500px);min-height:320px}
+  .tools{display:flex;overflow-x:auto;gap:8px;padding:2px 2px 8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .tool{flex:0 0 72px;scroll-snap-align:start}
+  .tool kbd{display:none}
+  .music-pop{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));width:auto;max-height:calc(100dvh - 90px);overflow:auto}
   .feel{grid-template-columns:repeat(2,minmax(0,1fr))}
   nav a{padding:7px 10px}
   .logo{font-size:21px}
   .icon-btn .lbl{display:none}
+}
+@media (max-width:430px){
+  .logo > span{display:none}
+  .top .wrap{gap:6px;flex-wrap:nowrap}
+  nav{padding:3px}
+  nav a{padding:6px 9px;font-size:13px}
+  .icon-btn{padding:6px 8px}
 }
 @media (prefers-reduced-motion:reduce){ .view{animation:none} .btn,.card,.tool,.shape-btn{transition:none} }
 </style>
@@ -860,7 +873,7 @@ class Sim{
     const cw=Math.round(W*dpr),ch=Math.round(H*dpr);if(this.cv.width!==cw)this.cv.width=cw;if(this.cv.height!==ch)this.cv.height=ch;
     const oldS=this.S,ohx=this.hx,ohy=this.hy;this.W=W;this.H=H;
     const sh=this.shape;if(!sh)return;
-    const k=this.opt.mini?.4:.33,ky=this.opt.mini?.4:.36;
+    const k=this.opt.mini?.4:(W<500?.42:.33),ky=this.opt.mini?.4:(W<500?.38:.36);
     const acc=this.recipe&&this.recipe.acc;const head=acc==='partyhat'?.55:['crown','sprout','bow'].includes(acc)?.35:acc==='flower'?.15:0;
     const S=Math.min(W*k/Math.max(sh.ex,.9),H*ky/Math.max(sh.ey+head/2,.9))*this.props.scale;
     this.hx=W/2;this.hy=H/2+(-(sh.minY+sh.maxY)/2+head/2)*S;
@@ -1360,7 +1373,7 @@ const saveMusic=()=>{try{localStorage.setItem(MKEY,JSON.stringify({on:Music.on||
 function renderMusic(){const on=Music.on;$('#musicToggle').textContent=on?'Pause music':'Play music';$('#musicState').textContent=on?'Playing':pendingMusic?'Starts on your next tap':'Off';
   $('#musicLbl').textContent=on?'Music on':'Music';$('#musicBtn').classList.toggle('playing',on);$('#musicVol').value=Math.round(Music.vol*100);$('#musicVolVal').textContent=Math.round(Music.vol*100)+'%';
   $('#musicStyles').innerHTML=Object.entries(MUSIC_STYLES).map(([k,m])=>`<button type="button" data-mstyle="${k}" aria-pressed="${k===Music.style}"><b>${m.name}</b><small>${m.note}</small></button>`).join('');}
-$('#musicBtn').onclick=()=>{const pop=$('#musicPop');pop.hidden=!pop.hidden;$('#musicBtn').setAttribute('aria-expanded',String(!pop.hidden));};
+$('#musicBtn').onclick=()=>{const pop=$('#musicPop');pop.style.top=innerWidth<=560?Math.round(document.querySelector('.top').getBoundingClientRect().bottom+8)+'px':'';pop.hidden=!pop.hidden;$('#musicBtn').setAttribute('aria-expanded',String(!pop.hidden));};
 document.addEventListener('click',e=>{if(!e.target.closest('.music-wrap')&&!$('#musicPop').hidden){$('#musicPop').hidden=true;$('#musicBtn').setAttribute('aria-expanded','false');}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#musicPop').hidden){$('#musicPop').hidden=true;$('#musicBtn').setAttribute('aria-expanded','false');$('#musicBtn').focus();}});
 $('#musicToggle').onclick=()=>{pendingMusic=false;if(Music.on)Music.stop();else Music.start();saveMusic();renderMusic();};
